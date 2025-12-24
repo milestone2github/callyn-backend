@@ -77,7 +77,7 @@ router.get("/zoho/callback", async (req, res) => {
     
     // 2. Fetch User from Zoho (to get the email)
     // NOTE: For production, extract email from 'tokenResponse.data.id_token' using jwt.decode()
-    const userEmail = tokenResponse.data.id_token ? jwt.decode(tokenResponse.data.id_token).email : "ishu@niveshonline.com"; // Hardcoded for testing
+    const userEmail = tokenResponse.data.id_token ? jwt.decode(tokenResponse.data.id_token).email : "";
     console.log(`Callback: Processed email: ${userEmail}`);
 
     const peopleResponse = await axios.get(
