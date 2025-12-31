@@ -213,23 +213,28 @@ export const syncUserDetails = async (req, res) => {
       return res.status(400).json({ message: "Username is required" });
     }
 
-    // Upsert: Update if email exists, otherwise create new
     const updatedUser = await UserDetailsModel.findOneAndUpdate(
       { email: email },
       { 
         username,
         email,
-        phoneModel, 
-        osLevel, 
-        appVersion, 
+        phoneModel,
+        osLevel,
+        appVersion,
         department,
-        lastSeen: lastSeen || new Date() // Use provided date or current server time
+        lastSeen: lastSeen || new Date()
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+
+    return res.status(200).json({
+      message: "User details synced successfully",
+      user: updatedUser
+    });
+
   } catch (error) {
     console.error("[UserDetails] Error syncing:", error.message);
-    res.status(500).json({ message: "Error syncing details", error: error.message });
+    return res.status(500).json({ message: "Error syncing details", error: error.message });
   }
 };
 
