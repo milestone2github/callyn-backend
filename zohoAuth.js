@@ -134,7 +134,7 @@ router.get("/zoho/callback", async (req, res) => {
     }
     // -----------------------------------------------
 
-    const finalRedirect = `${redirectUrl}?token=${jwtToken}&name=${encodeURIComponent(name)}&department=${encodeURIComponent(departmentName)}`;
+    const finalRedirect = `${redirectUrl}?token=${jwtToken}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&department=${encodeURIComponent(departmentName)}`;
     res.redirect(finalRedirect);
 
   } catch (error) {

@@ -207,17 +207,18 @@ export const getLatestVersion = async (req, res) => {
 
 export const syncUserDetails = async (req, res) => {
   try {
-    const { username, phoneModel, osLevel, appVersion, lastSeen, department } = req.body;
+    const { username, email, phoneModel, osLevel, appVersion, lastSeen, department } = req.body;
 
     if (!username) {
       return res.status(400).json({ message: "Username is required" });
     }
 
-    // Upsert: Update if username exists, otherwise create new
+    // Upsert: Update if email exists, otherwise create new
     const updatedUser = await UserDetailsModel.findOneAndUpdate(
-      { username: username },
+      { email: email },
       { 
         username,
+        email,
         phoneModel, 
         osLevel, 
         appVersion, 
@@ -226,10 +227,6 @@ export const syncUserDetails = async (req, res) => {
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
-
-    console.log(`[UserDetails] Synced details for ${username}`);
-    res.status(200).json({ message: "User details synced", data: updatedUser });
-
   } catch (error) {
     console.error("[UserDetails] Error syncing:", error.message);
     res.status(500).json({ message: "Error syncing details", error: error.message });
