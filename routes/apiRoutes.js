@@ -7,6 +7,9 @@ import {
   uploadCallLog,
   getLegacyData,
   getLatestVersion,
+  syncUserDetails,
+  getAllUserDetails,
+  getCallLogs,
 } from "../controllers/appController.js";
 
 const router = express.Router();
@@ -18,9 +21,14 @@ router.put("/updateRequestStatus", protect, updateRequestStatus);
 
 // Data Routes
 router.post("/uploadCallLog", protect, uploadCallLog);
+router.get("/getCallLogs", getCallLogs);
 router.get("/getLegacyData", protect, getLegacyData);
 
 // Version Route
 router.get("/version/latest", getLatestVersion);
+
+// User Details Sync Route
+router.post("/syncUserDetails", syncUserDetails);
+router.get("/getUserDetails", getAllUserDetails);
 
 export default router;
