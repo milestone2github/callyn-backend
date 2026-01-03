@@ -227,6 +227,12 @@ export const syncUserDetails = async (req, res) => {
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+
+     return res.status(200).json({
+      message: "User details synced successfully",
+      user: updatedUser
+    });
+    
   } catch (error) {
     console.error("[UserDetails] Error syncing:", error.message);
     res.status(500).json({ message: "Error syncing details", error: error.message });
