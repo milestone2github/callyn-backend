@@ -71,11 +71,23 @@ export const updateRequestStatus = async (req, res) => {
 
 export const uploadCallLog = async (req, res) => {
   try {
-    const { callerName, rshipManagerName, type, timestamp, duration } = req.body;
+    console.log("[CallLog] upload request body:", req.body);
+    const { callerName, rshipManagerName, type, timestamp, duration, simslot, simSlot, isWork } = req.body;
     const uploadedBy = req.user.name;
 
     if (!callerName || !type || !timestamp) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Accept either `simslot` or `simSlot` from clients
+    const simSlotValue = simslot ?? simSlot ?? null;
+
+    // Normalize isWork to boolean (accept "true"/"false" strings or booleans)
+    let isWorkBool = false;
+    if (typeof isWork === "string") {
+      isWorkBool = isWork.toLowerCase() === "true";
+    } else {
+      isWorkBool = Boolean(isWork);
     }
 
     const newLog = new CallLogModel({
@@ -85,6 +97,8 @@ export const uploadCallLog = async (req, res) => {
       timestamp: new Date(Number(timestamp)),
       duration: Number(duration),
       uploadedBy,
+      simslot: simSlotValue,
+      isWork: isWorkBool,
     });
 
     await newLog.save();
@@ -99,6 +113,7 @@ export const uploadCallLog = async (req, res) => {
 //get call logs
 export const getCallLogs = async (req, res) => {
   try {
+    console.log("[GetCallLogs] request body:", req.body, "query:", req.query);
     // Extract uploadedBy from query params
     const { rshipManagerName, date, uploadedBy } = req.query; 
     const filter = {};
