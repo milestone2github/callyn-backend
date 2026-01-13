@@ -3,6 +3,7 @@ import CallLogModel from "../schema/CallLogModel.js";
 import VersionModel from "../schema/VersionModel.js";
 import RequestModel from "../schema/RequestModel.js";
 import UserDetailsModel from "../schema/UserDetailsModel.js";
+import EmployeePhoneModel from "../schema/EmployeePhoneModel.js";
 
 // --- Helpers ---
 const normalizeName = (name) => (name ? name.toString().toLowerCase().trim() : "");
@@ -263,5 +264,77 @@ export const getAllUserDetails = async (req, res) => {
   } catch (error) {
     console.error("[GetUsers] Error fetching:", error.message);
     res.status(500).json({ message: "Error fetching users", error: error.message });
+  }
+};
+
+// --- Employee Phone Details Handler (Internal DB) ---
+export const getEmployeePhoneDetails = async (req, res) => {
+  try {
+    // 1. Filter: Users who have a phone number
+    const query = {
+      "onboarding.userFilledInfo.personalDetails.phone": {
+        $exists: true,
+        $ne: "",
+      },
+    };
+
+    // 2. Fetch and Populate
+    const employees = await EmployeePhoneModel.find(query)
+      .select(
+        "name email onboarding.userFilledInfo.personalDetails.phone onboarding.userFilledInfo.personalDetails.firstName onboarding.userFilledInfo.personalDetails.lastName department"
+      )
+      .populate("department", "name")
+      .lean();
+
+    // 3. Deduplicate Logic
+    const uniqueEmployees = [];
+    const seenPhones = new Set();
+
+    for (const emp of employees) {
+      const rawPhone = emp.onboarding?.userFilledInfo?.personalDetails?.phone;
+      
+      if (rawPhone) {
+        // Trim for unique check (handles spaces)
+        const normalizedPhone = rawPhone.toString().trim();
+        
+        // Only process if we haven't seen this trimmed number before
+        if (!seenPhones.has(normalizedPhone)) {
+          seenPhones.add(normalizedPhone);
+          uniqueEmployees.push(emp);
+        }
+      }
+    }
+
+    // 4. Map the unique results
+    const formattedData = uniqueEmployees.map((emp) => {
+      // Logic: Use 'name' if available. 
+      // Fallback: Concatenate firstName + lastName from personalDetails.
+      let displayName = emp.name;
+
+      if (!displayName) {
+        const personalDetails = emp.onboarding?.userFilledInfo?.personalDetails;
+        const firstName = personalDetails?.firstName || "";
+        const lastName = personalDetails?.lastName || "";
+        
+        // Combine and trim extra spaces
+        const fullName = `${firstName} ${lastName}`.trim();
+        displayName = fullName || "N/A";
+      }
+
+      return {
+        name: displayName,
+        email: emp.email || "N/A",
+        phone: emp.onboarding?.userFilledInfo?.personalDetails?.phone?.trim() || "N/A",
+        department: emp.department?.name || "N/A", 
+      };
+    });
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error("[EmployeePhoneDetails] Error fetching:", error.message);
+    res.status(500).json({
+      message: "Error fetching employee details",
+      error: error.message,
+    });
   }
 };
