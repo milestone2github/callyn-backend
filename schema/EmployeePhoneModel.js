@@ -44,7 +44,7 @@ const EmployeePhoneSchema = new mongoose.Schema(
 
 // 4. Register the model on the INTERNAL connection
 const EmployeePhoneModel = internalDbConnection.model(
-  "EmployeePhoneDetails",
+  "users",
   EmployeePhoneSchema
 );
 
