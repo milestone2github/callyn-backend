@@ -275,7 +275,7 @@ export const getEmployeePhoneDetails = async (req, res) => {
       "onboarding.userFilledInfo.personalDetails.phone": {
         $exists: true,
         $ne: "",
-      },
+      }, status: "active"
     };
 
     // 2. Fetch and Populate
@@ -283,7 +283,7 @@ export const getEmployeePhoneDetails = async (req, res) => {
       .select(
         "name email onboarding.userFilledInfo.personalDetails.phone onboarding.userFilledInfo.personalDetails.firstName onboarding.userFilledInfo.personalDetails.lastName department"
       )
-      .populate("department", "name")
+      .populate("department")
       .lean();
 
     // 3. Deduplicate Logic
