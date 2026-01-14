@@ -9,6 +9,7 @@ import {
   getLatestVersion,
   syncUserDetails,
   getAllUserDetails,
+  getEmployeePhoneDetails,
   getCallLogs,
 } from "../controllers/appController.js";
 
@@ -30,5 +31,8 @@ router.get("/version/latest", getLatestVersion);
 // User Details Sync Route
 router.post("/syncUserDetails", protect, syncUserDetails);
 router.get("/getUserDetails", protect, getAllUserDetails);
+
+//get employee phone details
+router.get("/getEmployeePhoneDetails", protect, getEmployeePhoneDetails);
 
 export default router;

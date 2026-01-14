@@ -3,6 +3,7 @@ import CallLogModel from "../schema/CallLogModel.js";
 import VersionModel from "../schema/VersionModel.js";
 import RequestModel from "../schema/RequestModel.js";
 import UserDetailsModel from "../schema/UserDetailsModel.js";
+import EmployeePhoneModel from "../schema/EmployeePhoneModel.js";
 
 // --- Helpers ---
 const normalizeName = (name) => (name ? name.toString().toLowerCase().trim() : "");
@@ -71,11 +72,23 @@ export const updateRequestStatus = async (req, res) => {
 
 export const uploadCallLog = async (req, res) => {
   try {
-    const { callerName, rshipManagerName, type, timestamp, duration } = req.body;
+    console.log("[CallLog] upload request body:", req.body);
+    const { callerName, rshipManagerName, type, timestamp, duration, simslot, simSlot, isWork } = req.body;
     const uploadedBy = req.user.name;
 
     if (!callerName || !type || !timestamp) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Accept either `simslot` or `simSlot` from clients
+    const simSlotValue = simslot ?? simSlot ?? null;
+
+    // Normalize isWork to boolean (accept "true"/"false" strings or booleans)
+    let isWorkBool = false;
+    if (typeof isWork === "string") {
+      isWorkBool = isWork.toLowerCase() === "true";
+    } else {
+      isWorkBool = Boolean(isWork);
     }
 
     const newLog = new CallLogModel({
@@ -85,6 +98,8 @@ export const uploadCallLog = async (req, res) => {
       timestamp: new Date(Number(timestamp)),
       duration: Number(duration),
       uploadedBy,
+      simslot: simSlotValue,
+      isWork: isWorkBool,
     });
 
     await newLog.save();
@@ -99,6 +114,7 @@ export const uploadCallLog = async (req, res) => {
 //get call logs
 export const getCallLogs = async (req, res) => {
   try {
+    console.log("[GetCallLogs] request body:", req.body, "query:", req.query);
     // Extract uploadedBy from query params
     const { rshipManagerName, date, uploadedBy } = req.query; 
     const filter = {};
@@ -227,11 +243,11 @@ export const syncUserDetails = async (req, res) => {
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
-    return res.status(200).json({
+     return res.status(200).json({
       message: "User details synced successfully",
       user: updatedUser
     });
-
+    
   } catch (error) {
     console.error("[UserDetails] Error syncing:", error.message);
     return res.status(500).json({ message: "Error syncing details", error: error.message });
@@ -247,5 +263,77 @@ export const getAllUserDetails = async (req, res) => {
   } catch (error) {
     console.error("[GetUsers] Error fetching:", error.message);
     res.status(500).json({ message: "Error fetching users", error: error.message });
+  }
+};
+
+// --- Employee Phone Details Handler (Internal DB) ---
+export const getEmployeePhoneDetails = async (req, res) => {
+  try {
+    // 1. Filter: Users who have a phone number
+    const query = {
+      "onboarding.userFilledInfo.personalDetails.phone": {
+        $exists: true,
+        $ne: "",
+      }, status: "active"
+    };
+
+    // 2. Fetch and Populate
+    const employees = await EmployeePhoneModel.find(query)
+      .select(
+        "name email onboarding.userFilledInfo.personalDetails.phone onboarding.userFilledInfo.personalDetails.firstName onboarding.userFilledInfo.personalDetails.lastName department"
+      )
+      .populate("department")
+      .lean();
+
+    // 3. Deduplicate Logic
+    const uniqueEmployees = [];
+    const seenPhones = new Set();
+
+    for (const emp of employees) {
+      const rawPhone = emp.onboarding?.userFilledInfo?.personalDetails?.phone;
+      
+      if (rawPhone) {
+        // Trim for unique check (handles spaces)
+        const normalizedPhone = rawPhone.toString().trim();
+        
+        // Only process if we haven't seen this trimmed number before
+        if (!seenPhones.has(normalizedPhone)) {
+          seenPhones.add(normalizedPhone);
+          uniqueEmployees.push(emp);
+        }
+      }
+    }
+
+    // 4. Map the unique results
+    const formattedData = uniqueEmployees.map((emp) => {
+      // Logic: Use 'name' if available. 
+      // Fallback: Concatenate firstName + lastName from personalDetails.
+      let displayName = emp.name;
+
+      if (!displayName) {
+        const personalDetails = emp.onboarding?.userFilledInfo?.personalDetails;
+        const firstName = personalDetails?.firstName || "";
+        const lastName = personalDetails?.lastName || "";
+        
+        // Combine and trim extra spaces
+        const fullName = `${firstName} ${lastName}`.trim();
+        displayName = fullName || "N/A";
+      }
+
+      return {
+        name: displayName,
+        email: emp.email || "N/A",
+        phone: emp.onboarding?.userFilledInfo?.personalDetails?.phone?.trim() || "N/A",
+        department: emp.department?.name || "N/A", 
+      };
+    });
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error("[EmployeePhoneDetails] Error fetching:", error.message);
+    res.status(500).json({
+      message: "Error fetching employee details",
+      error: error.message,
+    });
   }
 };
