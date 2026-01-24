@@ -2,46 +2,12 @@ import express from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import mongoose from "mongoose"; 
-import User from "./schema/UserModel.js"; // Milestone User Model
 import protect from "./authMiddleware.js";
+import { User } from "./schema/InternalModels.js";
+import { getAllocatedSimSerial } from "./utils/getAllocatedSimSerial.js";
 
 dotenv.config();
 const router = express.Router();
-
-// --- 1. INTERNAL DB CONNECTION (Using Shared URI) ---
-// Approach: We use the main MONGO_URI but force the 'dbName' option.
-// This allows you to have one env variable but talk to two databases.
-const internalDbName = "internal";
-let InternalUser;
-let InternalDepartment;
-
-try {
-  // 'dbName' overrides the database name in the connection string
-  const internalDbConnection = mongoose.createConnection(process.env.MONGO_URI, { 
-    dbName: internalDbName 
-  });
-  
-  // --- 2. DEFINE SCHEMAS FOR POPULATION ---
-  
-  // We must register this on the internal connection so 'ref' works
-  const InternalDepartmentSchema = new mongoose.Schema({
-    name: String
-  });
-  InternalDepartment = internalDbConnection.model("DEPARTMENTS", InternalDepartmentSchema);
-
-  // User Schema (With reference)
-  const InternalUserSchema = new mongoose.Schema({
-    email: { type: String, required: true },
-    department: { type: mongoose.Schema.Types.ObjectId, ref: "DEPARTMENTS" } 
-  });
-  InternalUser = internalDbConnection.model("USERS", InternalUserSchema);
-  
-  console.log(`Internal DB Connection Established to: /${internalDbName}`);
-
-} catch (err) {
-  console.error("Failed to connect to Internal DB:", err.message);
-}
 
 router.get("/zoho", (req, res) => {
   console.log("GET /auth/zoho: Request received");
@@ -73,74 +39,58 @@ router.get("/zoho/callback", async (req, res) => {
         },
     });
 
-    const { access_token } = tokenResponse.data;
+    // const { access_token } = tokenResponse.data;
     
-    // 2. Fetch User from Zoho (to get the email)
-    // NOTE: For production, extract email from 'tokenResponse.data.id_token' using jwt.decode()
-    const userEmail = 
-    tokenResponse.data.id_token ? jwt.decode(tokenResponse.data.id_token).email : 
-    //"ishu@niveshonline.com"; // Hardcoded for testing (MF Department)
-    //"vilakshan@niveshonline.com"; // Hardcoded for testing (Management)
+    // 2. extract user email from the token
+    let id_token = tokenResponse.data.id_token;
+    const decode = jwt.decode(id_token);
+    const email = decode.email 
+    // const userEmail = "ishu@niveshonline.com"; // Hardcoded for testing (MF Department)
+    // const userEmail = "vilakshan@niveshonline.com"; // Hardcoded for testing (Management)
 
-    console.log(`Callback: Processed email: ${userEmail}`);
+    console.log(`Callback: Processed email: ${email}`);
 
-    const peopleResponse = await axios.get(
-      `https://people.zoho.com/people/api/forms/P_EmployeeView/records`,
-      {
-        headers: { Authorization: `Zoho-oauthtoken ${access_token}` },
-        params: { searchColumn: "EMPLOYEEMAILALIAS", searchValue: userEmail },
-      }
-    );
+    // 3. Check if user exists in our internal DB and populate the required fields
+    const user = await User.findOne({ email })
+      .select("-onboarding")
+      .populate({
+        path: "department",
+        select: "name",
+      })
+      .populate({
+        path: "assets.asset",
+        match: { status: "allocated" }, // Asset.status
+        populate: {
+          path: "type",
+          match: { name: "SIM Card" }, // AssetType.name
+          select: "name",
+        },
+      });
 
-    if (!peopleResponse.data || !Array.isArray(peopleResponse.data) || peopleResponse.data.length === 0) {
-      throw new Error("User not found in Zoho People API");
-    }
-
-    const zohoUser = peopleResponse.data[0];
-    const email = zohoUser["Email ID"];
-    const name = `${zohoUser["First Name"]} ${zohoUser["Last Name"]}`.trim();
-
-    // 3. Local Milestone User Logic (Login/Signup)
-    let user = await User.findOne({ email });
     if (!user) {
-      user = await User.create({ name, email });
+      throw new Error('Your account is not authorized to access this application.')
     }
 
+    // 4. generate JWT token
     const jwtToken = jwt.sign(
       { id: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "180d" }
     );
 
-    // --- 4. POPULATE DEPARTMENT FROM INTERNAL DB ---
-    let departmentName = "N/A";
+    // 5. Extract allocated SIM and department name if any
+    const allocatedSIM = getAllocatedSimSerial(user) || "N/A";
+    const departmentName = user.department.name || "N/A";
     
-    if (InternalUser) {
-        try {
-            console.log(`Callback: Fetching department for '${email}'...`);
-            
-            const internalUserRecord = await InternalUser.findOne({ email: email })
-                                                         .populate("department");
-            
-            if (internalUserRecord && internalUserRecord.department) {
-                departmentName = internalUserRecord.department.name || "N/A";
-                console.log(`Callback: Found Department Name: ${departmentName}`);
-            } else {
-                console.log("Callback: Department not found or not assigned.");
-            }
-        } catch (dbErr) {
-            console.error("Callback: Internal DB Error:", dbErr.message);
-        }
-    }
-    // -----------------------------------------------
-
-    const finalRedirect = `${redirectUrl}?token=${jwtToken}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&department=${encodeURIComponent(departmentName)}`;
+    // 6. Generate a final redirect URL appending user info like name, email, deptartment, SIM
+    const finalRedirect = `${redirectUrl}?token=${jwtToken}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(email)}&department=${encodeURIComponent(departmentName)}&work_phone=${encodeURIComponent(allocatedSIM)}`;
     res.redirect(finalRedirect);
-
+    
   } catch (error) {
     console.error("\n--- ZOHO LOGIN FAILED ---");
     console.error("Error:", error.message);
-    res.redirect(`${redirectUrl}?login=failed`);
+    const errorMsg = error.message || 'Internal server error';
+    res.redirect(`${redirectUrl}?login=failed&msg=${encodeURIComponent(errorMsg)}`);
   }
 });
 
