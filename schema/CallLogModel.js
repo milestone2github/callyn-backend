@@ -6,6 +6,10 @@ const CallLogSchema = new mongoose.Schema({
     type: String, 
     default: "Unknown"
   },
+  familyHead: {
+    type: String,
+    default: "Unknown"
+  },
   rshipManagerName: { 
     type: String, 
     default: "Unknown" 

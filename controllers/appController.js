@@ -87,7 +87,7 @@ export const updateRequestStatus = async (req, res) => {
 export const uploadCallLog = async (req, res) => {
   try {
     console.log("[CallLog] upload request body:", req.body);
-    const { callerName, rshipManagerName, type, timestamp, duration, simslot, simSlot, isWork } = req.body;
+    const { callerName, familyHead,rshipManagerName, type, timestamp, duration, simslot, simSlot, isWork } = req.body;
     const uploadedBy = req.user.name;
 
     if (!callerName || !type || !timestamp) {
@@ -107,6 +107,7 @@ export const uploadCallLog = async (req, res) => {
 
     const newLog = new CallLogModel({
       callerName,
+      familyHead: familyHead || "N/A",
       rshipManagerName: rshipManagerName || "N/A",
       type: type.toLowerCase(),
       timestamp: new Date(Number(timestamp)),
@@ -194,18 +195,37 @@ export const getLegacyData = async (req, res) => {
 
     const excludedNames = new Set(personalRequests.map((r) => normalizeName(r.requestedContact)));
     
+    // Calculate family AUM totals first
+    const familyAumMap = {};
+    mintResults.forEach((doc) => {
+      const familyHead = (doc["FAMILY HEAD"] || "").replace(/"/g, "");
+      if (familyHead) {
+        if (!familyAumMap[familyHead]) {
+          familyAumMap[familyHead] = 0;
+        }
+        const aumValue = Number(doc.AUM) || 0;
+        familyAumMap[familyHead] += aumValue;
+      }
+    });
+
     // Filter and Map
     const contacts = mintResults
       .filter((doc) => !excludedNames.has(normalizeName(doc.NAME)))
-      .map((doc) => ({
-        name: doc.NAME,
-        number: (doc.MOBILE || "").replace(/"/g, ""),
-        type: "work",
-        pan: (doc.PAN || "").replace(/"/g, ""),
-        rshipManager: (doc["RELATIONSHIP  MANAGER"] || "").replace(/"/g, ""),
-        familyHead: (doc["FAMILY HEAD"] || "").replace(/"/g, ""),
-        aum: formatIndianNumber(Number(doc.AUM)) || "N/A",
-      }));
+      .map((doc) => {
+        const familyHeadName = (doc["FAMILY HEAD"] || "").replace(/"/g, "");
+        const familyAumTotal = familyAumMap[familyHeadName] || 0;
+        
+        return {
+          name: doc.NAME,
+          number: (doc.MOBILE || "").replace(/"/g, ""),
+          type: "work",
+          pan: (doc.PAN || "").replace(/"/g, ""),
+          rshipManager: (doc["RELATIONSHIP  MANAGER"] || "").replace(/"/g, ""),
+          familyHead: familyHeadName,
+          aum: formatIndianNumber(Number(doc.AUM)) || "N/A",
+          familyAum: formatIndianNumber(familyAumTotal) || "N/A",
+        };
+      });
 
     res.json(contacts);
   } catch (error) {
@@ -257,6 +277,8 @@ export const syncUserDetails = async (req, res) => {
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+
+    console.log(`[UserDetails] Synced for user: ${username}, email: ${email}, phoneModel: ${phoneModel}, osLevel: ${osLevel}, appVersion: ${appVersion}, department: ${department}, lastSeen: ${lastSeen}`);
 
      return res.status(200).json({
       message: "User details synced successfully",
