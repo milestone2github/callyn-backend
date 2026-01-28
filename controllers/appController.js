@@ -87,7 +87,7 @@ export const updateRequestStatus = async (req, res) => {
 export const uploadCallLog = async (req, res) => {
   try {
     console.log("[CallLog] upload request body:", req.body);
-    const { callerName, familyHead,rshipManagerName, type, timestamp, duration, simslot, simSlot, isWork } = req.body;
+    const { callerName, familyHead,rshipManagerName, type, timestamp, duration, notes, simslot, simSlot, isWork } = req.body;
     const uploadedBy = req.user.name;
 
     if (!callerName || !type || !timestamp) {
@@ -112,6 +112,7 @@ export const uploadCallLog = async (req, res) => {
       type: type.toLowerCase(),
       timestamp: new Date(Number(timestamp)),
       duration: Number(duration),
+      notes: notes || "",
       uploadedBy,
       simslot: simSlotValue,
       isWork: isWorkBool,
@@ -130,8 +131,9 @@ export const uploadCallLog = async (req, res) => {
 export const getCallLogs = async (req, res) => {
   try {
     console.log("[GetCallLogs] request body:", req.body, "query:", req.query);
-    // Extract uploadedBy from query params
-    const { rshipManagerName, date, uploadedBy } = req.query; 
+    
+    // [!code focus] Extract 'showNotes' to match the Android client query param
+    const { rshipManagerName, date, uploadedBy, showNotes } = req.query; 
     const filter = {};
 
     // 1. Filter by Relationship Manager Name (Case-insensitive)
@@ -139,7 +141,7 @@ export const getCallLogs = async (req, res) => {
       filter.rshipManagerName = { $regex: new RegExp(rshipManagerName, "i") };
     }
 
-    // 2. Filter by Uploaded By (Case-insensitive) [NEW]
+    // 2. Filter by Uploaded By (Case-insensitive)
     if (uploadedBy) {
       filter.uploadedBy = { $regex: new RegExp(uploadedBy, "i") };
     }
@@ -160,6 +162,14 @@ export const getCallLogs = async (req, res) => {
       } else {
          return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD" });
       }
+    }
+
+    // 4. Filter by notes existence if showNotes is true
+    // [!code focus] Updated variable name and logic
+    if (showNotes === 'true' || showNotes === true) {
+      // $regex: /\S/ ensures there is at least one non-whitespace character 
+      // This strictly filters out "", "   ", and null
+      filter.notes = { $exists: true, $regex: /\S/ };
     }
 
     // Fetch logs, sorted by newest first

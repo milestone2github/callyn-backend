@@ -27,6 +27,11 @@ const CallLogSchema = new mongoose.Schema({
     type: Number, 
     required: true // Duration in seconds
   },
+  notes: {
+    type: String,
+    default: "",
+    required: false
+  },
   // We automatically add who uploaded this based on the Bearer token
   uploadedBy: { 
     type: String, 
