@@ -1,0 +1,408 @@
+Ticket Data
+
+{
+  "Owner": {
+    "name": "OWNER NAME"
+  },
+  "Family_Head": {
+    "name": "FAMILY HEAD NAME"
+  },
+  "Name": "CLIENT NAME",
+  "TicketID": "TICKET ID"
+}
+
+//complete data
+{
+  "Owner": {
+    "name": "Ridhi Sharma", -> OWNER NAME
+
+    "id": "2969103000533444001",
+    "email": "ridhi@niveshonline.com"
+  },
+  "Task": null,
+  "Email": "dkam4545@gmail.com",
+  "Mandate_Registered": false,
+  "$currency_symbol": "₹",
+  "Address": null,
+  "$field_states": null,
+  "Route_Date": null,
+  "Family_Head": {
+    "name": "HIRA LAL WANGNOO", -> FAMILY HEAD NAME
+    "id": "2969103000554160176"
+  },
+  "Resolution_owner": {
+    "name": "Ridhi Sharma",
+    "id": "2969103000533444001"
+  },
+  "Ticket_Access_Share": {
+    "name": "Sagar Maini",
+    "id": "2969103000000183019"
+  },
+  "Time_Preference": null,
+  "Name": "SUSHILA WANGOO", -> CLIENT NAME
+  "Last_Activity_Time": "2026-01-27T13:28:54+05:30",
+  "Mandate_Registeration_Time": null,
+  "Insurance_Status": null,
+  "TicketID": "MOP9756", -> TICKET ID
+  "Tomorrow_Date": null,
+  "$state": "save",
+  "Unsubscribed_Mode": null,
+  "$process_flow": true,
+  "$locked_for_me": false,
+  "id": "2969103000600206001",
+  "Confirmation_Status": null,
+  "Mandate_Status": null,
+  "$approved": true,
+  "Mandate_ID": null,
+  "$approval": {
+    "delegate": false,
+    "takeover": false,
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "Created_Time": "2026-01-27T10:37:20+05:30",
+  "Priority": "Medium",
+  "Reported_by": "Ved Prakash Sharma",
+  "Follow_up_Item": null,
+  "Claim_Type": null,
+  "$editable": true,
+  "Mandate_notify": false,
+  "Ticket_Status": "Resolved",
+  "Date_Time": null,
+  "Resolved_Date": "2026-01-27",
+  "Current_Date": null,
+  "Created_By": {
+    "name": "Ridhi Sharma",
+    "id": "2969103000533444001",
+    "email": "ridhi@niveshonline.com"
+  },
+  "$zia_owner_assignment": "owner_recommendation_unavailable",
+  "Ticket_Subject": "Mutual Fund", -> PRODUCT NAME
+  "With_Time_checkbox": false,
+  "Escalation_Status": "In Process",
+  "$review_process": {
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "Escalation_Date": null,
+  "notes_ID_Field": null,
+  "$layout_id": {
+    "display_label": "Standard",
+    "name": "Standard",
+    "id": "2969103000060924432"
+  },
+  "Date_Shiftable": null,
+  "Source": "Other",
+  "Mandate_Reg_Date": null,
+  "Modified_By": {
+    "name": "Ridhi Sharma",
+    "id": "2969103000533444001",
+    "email": "ridhi@niveshonline.com"
+  },
+  "$review": null,
+  "Fixed_Lead_Owner": false,
+  "Phone": "9717620850", -> CLIENT MOBILE NUMBER
+  "Follow_up_pending": false,
+  "Email_Opt_Out": false,
+  "Due_Date_with_Time": null,
+  "Modified_Time": "2026-01-27T13:28:54+05:30",
+  "Due_Date": "2026-01-27",
+  "Unsubscribed_Time": null,
+  "Subject": "Switch long term units from Nippon India Flexi Cap Fund to Nippon India Multi-Asset Allocation Fund",
+  "$orchestration": false,
+  "Manual_Review": false,
+  "Ticket_Classification": "Systematic Transaction", --> PRODUCT NAME
+  "UCC": null,
+  "$in_merge": false,
+  "Locked__s": false,
+  "Formula_1": 0,
+  "Tag": [],
+  "$approval_state": "approved"
+}
+
+
+
+
+Investment Leads
+
+{
+  "Owner": {
+    "name": "OWNER NAME"
+  },
+  "Name": "CLIENT NAME",
+  "Lead_UCC": "LEAD UCC Number",
+  "Mobile": "CLIENT MOBILE NUMBER"
+}
+
+//complete data
+{
+  "Owner": {
+    "name": "Sagar Maini", -> OWNER NAME
+    "id": "2969103000000183019",
+    "email": "sagar@niveshonline.com"
+  },
+  "Email": null,
+  "$currency_symbol": "₹",
+  "Conversion_Date": null,
+  "$field_states": null,
+  "Refrencer_Name": null,
+  "Last_Updated_Meeting": "2026-01-27",
+  "Name": "Rajesh G7", -> CLIENT NAME
+  "Last_Activity_Time": "2026-01-27T13:10:37+05:30",
+  "VP_COO_date": null,
+  "first_follow_up_date": "2026-01-27",
+  "Tomorrow_s_Date": null,
+  "Identifier": null,
+  "$state": "save",
+  "Unsubscribed_Mode": null,
+  "$process_flow": true,
+  "Currency": "INR",
+  "Prediction_Report": null,
+  "$locked_for_me": false,
+  "Not_Verified_Notes1": null,
+  "id": "2969103000600204080",
+  "Reference_Owner": null,
+  "$approved": true,
+  "Status": "Decision Maker - 80%",
+  "$approval": {
+    "delegate": false,
+    "takeover": false,
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "Created_Time": "2026-01-27T13:09:09+05:30",
+  "Lost_Lead": false,
+  "Cross_Sales": null,
+  "Follow_up_Item": "insurance",
+  "Investor_number": null,
+  "$editable": true,
+  "Lead_assigned_to_Ops": false,
+  "Converting_user": null,
+  "Survey": null,
+  "Referencer_Details": null,
+  "Route_date": null,
+  "Referencer_Mobile": null,
+  "Created_By": {
+    "name": "Sagar Maini",
+    "id": "2969103000000183019",
+    "email": "sagar@niveshonline.com"
+  },
+  "$zia_owner_assignment": "owner_recommendation_unavailable",
+  "Follow_up_Date_Time": null,
+  "Is_Family_Head": false,
+  "Address_for_route": null,
+  "Follow_up_date": "2026-01-30",
+  "Description": null,
+  "Special_permission_to_FH_rule": false,
+  "$review_process": {
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "$layout_id": {
+    "display_label": "Standard",
+    "name": "Standard",
+    "id": "2969103000016145997"
+  },
+  "Lead_UCC": "MPF13561", -> LEAD UCC Number
+  "Modified_By": {
+    "name": "Sagar Maini",
+    "id": "2969103000000183019",
+    "email": "sagar@niveshonline.com"
+  },
+  "$review": null,
+  "Cross_Sales_ID": null,
+  "MF_Lead_Status": "Lead stage 1",
+  "Follow_up_pending": null,
+  "Cross_Sales_Processed": null,
+  "MF_lead_Stage": "Decision Maker (80%)",
+  "Modified_Time": "2026-01-27T13:10:37+05:30",
+  "Route_task": null,
+  "For_Review": false,
+  "Unsubscribed_Time": null,
+  "Follow_up_time_box": false,
+  "Mobile": "9810500322", -> CLIENT MOBILE NUMBER
+  "$orchestration": false,
+  "Manual_Review": false,
+  "PAN_number": null,
+  "Meeting_Location": null,
+  "$in_merge": false,
+  "Locked__s": false,
+  "Lead_Source": "Existing Client",
+  "Meeting_Transport_75_of_the_journey": null,
+  "Tag": [],
+  "Product_Type": "Mutual Fund",
+  "$approval_state": "approved"
+}
+
+Insurance Leads
+
+{
+  "Owner": {
+    "name": "OWNER NAME"
+  },
+  "Product": "PRODUCT NAME",
+  "Lead_ID": "LEAD UCC Number",
+  "Phone": "CLIENT MOBILE NUMBER"
+}
+
+//complete data
+{
+  "Owner": {
+    "name": "Rohit Bhardwaj", -> OWNER NAME
+    "id": "2969103000500517001",
+    "email": "rohit@niveshonline.com"
+  },
+  "$field_states": null,
+  "Referral_Fee1": null,
+  "Posted_to_Excel_payout_disc": "Not Posted",
+  "Product": "Health Insurance", -> PRODUCT NAME
+  "Accounts_Release": false,
+  "$state": "save",
+  "$process_flow": true,
+  "Policy_End_Date": null,
+  "Third_Party": null,
+  "Quotation_Uploaded": true,
+  "id": "2969103000599079061",
+  "Policy_Start_Date1": null,
+  "Lead_Hide": false,
+  "Cross_Sales_Identifier": null,
+  "Referral_Amount": null,
+  "$approval": {
+    "delegate": false,
+    "takeover": false,
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "Created_Time": "2026-01-28T10:51:05+05:30",
+  "Referral_Fee": null,
+  "Premium_Paying_Term": null,
+  "Conversion_Lost_Date": null,
+  "Cashback_Payout_Release_Date": null,
+  "Previous_Policy_Number": null,
+  "Created_By": {
+    "name": "Rohit Bhardwaj",
+    "id": "2969103000500517001",
+    "email": "rohit@niveshonline.com"
+  },
+  "Discount_Approval": null,
+  "Follow_up_Date_Time": null,
+  "Payment_Received": false,
+  "Renewal_Notice_Premium": null,
+  "Premium_Payment_Frequency": null,
+  "deductible_in_policy": null,
+  "Policy_Attachment_Name": null,
+  "Campaign_End_Date": null,
+  "Last_Year_Premium": null,
+  "Policy_Auto_Verification": false,
+  "Follow_up_Date": "2026-01-29",
+  "$review_process": {
+    "approve": false,
+    "reject": false,
+    "resubmit": false
+  },
+  "Processing_User": null,
+  "File_Upload_1": null,
+  "A_c_Number": null,
+  "Policy_Number": null,
+  "Insured_Name": null,
+  "Associate_Payout1": null,
+  "Discount_Payout_Released": false,
+  "Eldest_Member_Age": null,
+  "Asso_Approver": null,
+  "Manual_Verify": false,
+  "Net_Revenues": 0,
+  "Payment_Mode": null,
+  "Refreshed_Lead": false,
+  "MIS_entry_done": false,
+  "Renewal_Date": null,
+  "ReferralSource": null,
+  "Discount_Cash_back": null,
+  "$orchestration": false,
+  "Manual_Review": false,
+  "Bank_Name": null,
+  "Locked__s": false,
+  "Tag": [],
+  "Follow_up_Time_Check": false,
+  "Details_Reconciled": false,
+  "Direct_Associate": "Direct Client",
+  "Email": null,
+  "$currency_symbol": "₹",
+  "Lead_ID": "MIB17141", -> LEAD UCC Number
+  "OD_premium": null,
+  "Red_Flag_Raised": false,
+  "Name": "Anupama Gupta (Son)", -> CLIENT NAME
+  "Last_Activity_Time": "2026-01-28T11:42:45+05:30",
+  "Policy_Due_Date": null,
+  "Identifier": null,
+  "Unsubscribed_Mode": null,
+  "First_FollowUp_Date": "2026-01-28",
+  "Policy_Manual_Verified": false,
+  "$locked_for_me": false,
+  "Associate_Payout": null,
+  "Reference_Owner": null,
+  "Relevant_Premium_figure": null,
+  "$approved": true,
+  "Red_Flag_Reason": null,
+  "Accounts_Release_Date": null,
+  "Veh_reg_no_Product_Name": null,
+  "A_c_Holder_name": null,
+  "Process_Status": "InProcess",
+  "Brokerage_ORC": null,
+  "Investor_number": null,
+  "Brokers": null,
+  "$editable": true,
+  "Lead_Funnel": "In-followUp",
+  "Policy_Uploaded": false,
+  "IFSC_Code": null,
+  "Renewal_Product_Name": null,
+  "Premium_B_f_GST": null,
+  "Insurance_Type": null,
+  "Company_Name": null,
+  "$zia_owner_assignment": "owner_recommendation_unavailable",
+  "Relevant_Premium": null,
+  "Repeat_A_c_Number": null,
+  "Payout_to_be_released_to": null,
+  "Reference_Name": null,
+  "Vehicle_Registration_date": null,
+  "$layout_id": {
+    "display_label": "Standard",
+    "name": "Standard",
+    "id": "2969103000145220240"
+  },
+  "CMS_Checkbox": false,
+  "Renewability": "Renewable",
+  "Reference_Phone": null,
+  "Modified_By": {
+    "name": "Vilakshan Bhutani",
+    "id": "2969103000004817001",
+    "email": "vilakshan@niveshonline.com"
+  },
+  "$review": null,
+  "Conversion_Status": null,
+  "Phone": "9810022310", -> CLIENT MOBILE NUMBER
+  "Internal_Source": null,
+  "Manual_Excel_Entry": false,
+  "Brokerage_Received": null,
+  "Associate_Manual": null,
+  "Disconnect_Count": "1",
+  "Modified_Time": "2026-01-28T11:42:45+05:30",
+  "Broker": null,
+  "Unsubscribed_Time": null,
+  "Sum_Insured": null,
+  "Cashback": null,
+  "Gold_Mine_Uploaded": false,
+  "Payment_Done_mode": null,
+  "Policy_Start_Date": null,
+  "PAN_number": null,
+  "$in_merge": false,
+  "Referencer": null,
+  "Payout_Release_Date": null,
+  "Associate": null,
+  "$approval_state": "approved",
+  "Payout_Approval": null
+}

@@ -4,6 +4,8 @@ import VersionModel from "../schema/VersionModel.js";
 import RequestModel from "../schema/RequestModel.js";
 import UserDetailsModel from "../schema/UserDetailsModel.js";
 import EmployeePhoneModel from "../schema/EmployeePhoneModel.js";
+import SmsLogModel from "../schema/SmsLogModel.js"; // Import the model
+import { runCrmSync } from "../utils/zohoCRM.js";
 
 // --- Helpers ---
 const normalizeName = (name) => (name ? name.toString().toLowerCase().trim() : "");
@@ -132,8 +134,8 @@ export const getCallLogs = async (req, res) => {
   try {
     console.log("[GetCallLogs] request body:", req.body, "query:", req.query);
     
-    // [!code focus] Extract 'showNotes' to match the Android client query param
-    const { rshipManagerName, date, uploadedBy, showNotes } = req.query; 
+    // Added startDate and endDate to query params
+    const { rshipManagerName, date, uploadedBy, showNotes, startDate, endDate } = req.query; 
     const filter = {};
 
     // 1. Filter by Relationship Manager Name (Case-insensitive)
@@ -146,29 +148,40 @@ export const getCallLogs = async (req, res) => {
       filter.uploadedBy = { $regex: new RegExp(uploadedBy, "i") };
     }
 
-    // 3. Filter by Date
+    // 3. Date Range Logic
+    // Priorities: specific date > (startDate/endDate range) > default to today
     if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
-
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
 
       if (!isNaN(startOfDay.getTime())) {
-        filter.timestamp = {
-          $gte: startOfDay,
-          $lte: endOfDay
-        };
+        filter.timestamp = { $gte: startOfDay, $lte: endOfDay };
       } else {
          return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD" });
       }
+    } else if (startDate || endDate) {
+      // Use provided range, fallback to epoch/now if one is missing
+      const start = startDate ? new Date(startDate) : new Date(0);
+      const end = endDate ? new Date(endDate) : new Date();
+      
+      if (startDate) start.setHours(0, 0, 0, 0);
+      if (endDate) end.setHours(23, 59, 59, 999);
+
+      filter.timestamp = { $gte: start, $lte: end };
+    } else {
+      // Default: Only show today's data if no parameters are passed
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      
+      filter.timestamp = { $gte: todayStart, $lte: todayEnd };
     }
 
     // 4. Filter by notes existence if showNotes is true
-    // [!code focus] Updated variable name and logic
     if (showNotes === 'true' || showNotes === true) {
-      // $regex: /\S/ ensures there is at least one non-whitespace character 
-      // This strictly filters out "", "   ", and null
       filter.notes = { $exists: true, $regex: /\S/ };
     }
 
@@ -313,6 +326,45 @@ export const getAllUserDetails = async (req, res) => {
   }
 };
 
+//get SMS Logs
+export const getSmsLogs = async (req, res) => {
+  try {
+    console.log(`[getSmsLogs] User: ${req.user.name} requested ALL SMS logs at`, new Date().toISOString());
+
+    // MODIFIED: Removed the filter to return ALL logs
+    // Added .sort({ timestamp: -1 }) to show newest messages at the top
+    const logs = await SmsLogModel.find({}).sort({ timestamp: -1 });
+    
+    console.log(`[getSmsLogs] Found ${logs.length} total logs`);
+    res.status(200).json(logs);
+  } catch (err) {
+    console.error(`[getSmsLogs] Error for user ${req.user?.name}:`, err);
+    res.status(500).json({ error: "Failed to fetch logs" });
+  }
+};
+
+// POST: create a new log
+export const createSmsLog = async (req, res) => {
+  try {
+    // auto-assigning ownership based on the token
+    const userId = req.user.name;
+    const { sender, message, timestamp } = req.body;
+    console.log(`[createSmsLog] User: ${userId} is creating a log at`, new Date().toISOString(), 'with data:', { sender, message, timestamp });
+
+    const newLog = await SmsLogModel.create({
+      sender,
+      message,
+      timestamp,
+      uploadedBy: userId, 
+    });
+    console.log(`[createSmsLog] Log created for user ${userId} with _id: ${newLog._id}`);
+    res.status(201).json(newLog);
+  } catch (err) {
+    console.error(`[createSmsLog] Error for user ${req.user?.id}:`, err);
+    res.status(500).json({ error: "Failed to create log" });
+  }
+};
+
 // --- Employee Phone Details Handler (Internal DB) ---
 export const getEmployeePhoneDetails = async (req, res) => {
   try {
@@ -381,6 +433,23 @@ export const getEmployeePhoneDetails = async (req, res) => {
     res.status(500).json({
       message: "Error fetching employee details",
       error: error.message,
+    });
+  }
+};
+
+// --- CRM Data Handler ---
+export const getCRMData = async (req, res) => {
+  try {
+    const crmData = await runCrmSync();
+    res.status(200).json({
+      success: true,
+      message: "Sync completed successfully",
+      data: crmData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 };

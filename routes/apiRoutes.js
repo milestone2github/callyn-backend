@@ -11,6 +11,9 @@ import {
   getAllUserDetails,
   getEmployeePhoneDetails,
   getCallLogs,
+  getSmsLogs,
+  createSmsLog,
+  getCRMData
 } from "../controllers/appController.js";
 
 const router = express.Router();
@@ -32,7 +35,14 @@ router.get("/version/latest", getLatestVersion);
 router.post("/syncUserDetails", protect, syncUserDetails);
 router.get("/getUserDetails", protect, getAllUserDetails);
 
+//SMS Logs
+router.get("/getSMSLogs", protect, getSmsLogs);
+router.post("/postSMSLogs", protect, createSmsLog);
+
 //get employee phone details
 router.get("/getEmployeePhoneDetails", protect, getEmployeePhoneDetails);
+
+// CRM Sync Route
+router.get("/getCRMData", protect, getCRMData);
 
 export default router;
